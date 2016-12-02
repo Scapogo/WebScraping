@@ -1,4 +1,5 @@
 import scrapy
+import re
 from scrapy.loader import ItemLoader
 from WebScraper.items import Advert
 
@@ -19,12 +20,6 @@ class AdvertSpider(scrapy.Spider):
             yield scrapy.Request(response.urljoin(href),
                                  callback=self.parse_price)
 
-        # for inzerat in response.css('div.inzerat'):
-        #     yield {
-        #         'id': inzerat.css('div.inzerat::attr(id)').extract_first()[1:],
-        #         'link': inzerat.css('div.advertisement-head  h2 a::attr(href)').extract_first(),
-        #     }
-
         # follow pagination links
         # next_page = response.css('div.withLeftBox a.next::attr(href)').extract_first()
         # if next_page is not None:
@@ -44,10 +39,29 @@ class AdvertSpider(scrapy.Spider):
         # }
 
     def parse_to_item(self, response):
+        def get_float(text):
+            result = re.findall(r'\d+\.*\d*', text)
+
+            if len(result) > 0:
+                return result[0]
+            else:
+                return 0
+
         l = ItemLoader(item=Advert(), response=response)
-        l.add_xpath('Id', '//div[@id="breadcrumbs"]/text()')   # response.xpath('//div[@class="advertisement-head "]/h2/a/@href').extract()
-        l.add_xpath('Link', '//meta[@property="og:url"]/@content')    # response.xpath('//meta[@property="og:url"]/@content').extract()
+        l.add_xpath('Id', '//div[@id="breadcrumbs"]/text()')
+        # response.xpath('//meta[@property="og:url"]/@content').extract()
+        l.add_xpath('Link', '//meta[@property="og:url"]/@content')
         l.add_xpath('Price', '//strong[@id="data-price"]/text()')
+        l.add_xpath('NumberOfRooms', '//strong[@id="categoryNameJS"]/text()')   # categoryNameJS
+        # AreaM2 = scrapy.Field()  # Area in square meters
+        str_area = response.xpath('//div[@id="params"]/p[@class="paramNo1"]/strong/text()').extract()[-1]
+        value = get_float(str_area)
+        l.add_value('AreaM2', value)   # '//div[@id="params"]/p[@class="paramNo1"]/strong/text()').extract()[-1]
+        # Age = scrapy.Field()  # Categorical new or older building
+        l.add_value('Age', 'New')
+        # LastUpdate = scrapy.Field()  # Last update of advert
+        value = response.xpath('//div[@id="params"]/p[@class="paramNo0"]/strong/text()').extract()[-1]
+        l.add_value('LastUpdate', value)
         return l.load_item()
 
     def parse_advert_response(self, response):
@@ -59,11 +73,3 @@ class AdvertSpider(scrapy.Spider):
                     'id': inzerat.css('div.inzerat::attr(id)').extract_first()[1:],
                     'link': inzerat.css('div.advertisement-head  h2 a::attr(href)').extract_first(),
                 }
-        # yield {
-        #     'id': extract_with_css('div.inzerat::attr(id)')[1:],
-        #     'link': extract_with_css('div.advertisement-head  h2 a::attr(href)'),
-        # }
-
-        #inzerat[0].css('div.inzerat::attr(id)')
-        #head.css('h2 a::attr(href)').extract()
-        #inzerat = response.css('div.inzerat')

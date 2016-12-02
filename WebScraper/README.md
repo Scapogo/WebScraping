@@ -1,0 +1,1 @@
+Web scraping informations from Nehnutelnosti.sk
