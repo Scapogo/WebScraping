@@ -47,29 +47,76 @@ class AdvertSpider(scrapy.Spider):
             else:
                 return 0
 
+        def get_int(text):
+            result = re.findall(r'\d+\ *\d*', text)
+
+            if len(result) > 0:
+                return result[0]
+            else:
+                return 0
+
+        def get_m2(text):
+            results = re.findall(r'\d+', text)
+
+            area = ''
+
+            for result in results:
+                area += str(int(result))
+
+            if len(result) > 0:
+                return area
+            else:
+                return 0
+
+        def get_id(text):
+            result = re.findall(r'\d+', text)
+
+            if len(result) > 0:
+                return result[0]
+            else:
+                return 0
+
         l = ItemLoader(item=Advert(), response=response)
-        l.add_xpath('Id', '//div[@id="breadcrumbs"]/text()')
-        # response.xpath('//meta[@property="og:url"]/@content').extract()
+
+        str_value = str(response.xpath('//div[@id="breadcrumbs"]/text()').extract())
+        value = get_id(str_value)
+        l.add_value('Id', value)
+
         l.add_xpath('Link', '//meta[@property="og:url"]/@content')
-        l.add_xpath('Price', '//strong[@id="data-price"]/text()')
+
+        str_value = str(response.xpath('//strong[@id="data-price"]/text()').extract())
+        value = get_int(str_value)
+        l.add_value('Price', value)
+
         l.add_xpath('NumberOfRooms', '//strong[@id="categoryNameJS"]/text()')   # categoryNameJS
-        # AreaM2 = scrapy.Field()  # Area in square meters
-        str_area = response.xpath('//div[@id="params"]/p[@class="paramNo1"]/strong/text()').extract()[-1]
-        value = get_float(str_area)
-        l.add_value('AreaM2', value)   # '//div[@id="params"]/p[@class="paramNo1"]/strong/text()').extract()[-1]
-        # Age = scrapy.Field()  # Categorical new or older building
-        l.add_value('Age', 'New')
-        # LastUpdate = scrapy.Field()  # Last update of advert
-        value = response.xpath('//div[@id="params"]/p[@class="paramNo0"]/strong/text()').extract()[-1]
-        l.add_value('LastUpdate', value)
+
+        # Get all parameters of estate
+        parameters = response.xpath('//div[@id="params"]/p')
+
+        for parameter in parameters:
+            text = str(parameter.xpath('.//span[@class="tlste"]/text()').extract())
+            if "Úžitková plocha" in text:
+                # Area in square meters
+                str_area = str(parameter.xpath('.//strong/text()').extract())
+                value = get_m2(str_area)
+                l.add_value('LivingAreaM2', value)
+            elif "Dátum aktualizácie" in text:
+                # Last update of advert
+                str_date = str(parameter.xpath('.//strong/text()').extract())[2:-2]
+                l.add_value('LastUpdate', str_date)
+            elif "Stav" in text:
+                # Categorical new or older building
+                str_age = str(parameter.xpath('.//strong/text()').extract())[2:-2]
+                l.add_value('Age', str_age)
+            elif "Plocha pozemku" in text:
+                # Whole are in square meters
+                str_area = str(parameter.xpath('.//strong/text()').extract())
+                value = get_m2(str_area)
+                l.add_value('LandAreaM2', value)
+            elif "Lokalita" in text:
+                # Location of estate
+                str_location = parameter.xpath('.//strong/text()').extract()
+                value = ''.join(str_location)
+                l.add_value('Location', value)
+
         return l.load_item()
-
-    def parse_advert_response(self, response):
-        def extract_with_css(query):
-            return response.css(query).extract_first().strip()
-
-        for inzerat in response.css('div.inzerat'):
-            yield {
-                    'id': inzerat.css('div.inzerat::attr(id)').extract_first()[1:],
-                    'link': inzerat.css('div.advertisement-head  h2 a::attr(href)').extract_first(),
-                }
