@@ -13,9 +13,9 @@ class Advert(scrapy.Item):
     Id = scrapy.Field()     # ID of advert
     Link = scrapy.Field()   # Link to advery
     Price = scrapy.Field()  # Price of flat or house
-    NumberOfRooms = scrapy.Field()
+    NumberOfRooms = scrapy.Field()  # Number of rooms in house or apartment
     LivingAreaM2 = scrapy.Field()  # Living area in square meters
     LandAreaM2 = scrapy.Field()     # Whole area in square meters
     Age = scrapy.Field()    # Categorical new or older building
-    Location = scrapy.Field()
+    Location = scrapy.Field()  # Location of estate which we can later use for evaluation
     LastUpdate = scrapy.Field()  # Last update of advert
