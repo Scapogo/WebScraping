@@ -98,26 +98,26 @@ class AdvertSpider(scrapy.Spider):
 
         for parameter in parameters:
             # Get value of span parameter and based on that parse value to correct place
-            text = str(parameter.xpath('.//span[@class="tlste"]/text()').extract())
-            if "Úžitková plocha" in text:
+            text_tlste = str(parameter.xpath('.//span[@class="tlste"]/text()').extract())
+            if "Úžitková plocha" in text_tlste:
                 # Area in square meters
                 str_area = str(parameter.xpath('.//strong/text()').extract())
                 value = get_m2(str_area)
                 l.add_value('LivingAreaM2', value)
-            elif "Dátum aktualizácie" in text:
+            elif "Dátum aktualizácie" in text_tlste:
                 # Last update of advert, [2,-2] is there to remove brackets and comas
                 str_date = str(parameter.xpath('.//strong/text()').extract())[2:-2]
                 l.add_value('LastUpdate', str_date)
-            elif "Stav" in text:
+            elif "Stav" in text_tlste:
                 # Categorical new or older building, [2,-2] is there to remove brackets and comas
                 str_age = str(parameter.xpath('.//strong/text()').extract())[2:-2]
                 l.add_value('Age', str_age)
-            elif "Plocha pozemku" in text:
+            elif "Plocha pozemku" in text_tlste:
                 # Whole are in square meters
                 str_area = str(parameter.xpath('.//strong/text()').extract())
                 value = get_m2(str_area)
                 l.add_value('LandAreaM2', value)
-            elif "Lokalita" in text:
+            elif "Lokalita" in text_tlste:
                 # Location of estate
                 str_location = parameter.xpath('.//strong/text()').extract()
                 value = ''.join(str_location)
