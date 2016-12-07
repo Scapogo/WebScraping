@@ -3,6 +3,7 @@ import re
 from scrapy.loader import ItemLoader
 from WebScraper.items import Advert
 
+
 class AdvertSpider(scrapy.Spider):
     name = "adverts"
     start_urls = [
