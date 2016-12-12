@@ -17,5 +17,6 @@ class Advert(scrapy.Item):
     LivingAreaM2 = scrapy.Field()  # Living area in square meters
     LandAreaM2 = scrapy.Field()     # Whole area in square meters
     Age = scrapy.Field()    # Categorical new or older building
-    Location = scrapy.Field()  # Location of estate which we can later use for evaluation
+    Street = scrapy.Field()  # Street where estate is located
+    City = scrapy.Field()  # Location of estate which we can later use for evaluation
     LastUpdate = scrapy.Field()  # Last update of advert

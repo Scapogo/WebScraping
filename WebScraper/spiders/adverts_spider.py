@@ -112,6 +112,19 @@ class AdvertSpider(scrapy.Spider):
             elif "Stav" in text_tlste:
                 # Categorical new or older building, [2,-2] is there to remove brackets and comas
                 str_age = str(parameter.xpath('.//strong/text()').extract())[2:-2]
+
+                # Get categorical information based on description
+                if "Novostavba" in str_age:
+                    str_age = "New"
+                elif "Čiastočná" in str_age:
+                    str_age = "PartiallyRenewed"
+                elif "Kompletná" in str_age:
+                    str_age = "CompletelyRenewed"
+                elif "Pôvodný" in str_age:
+                    str_age = "Old"
+                else:
+                    str_age = "N/A"
+
                 l.add_value('Age', str_age)
             elif "Plocha pozemku" in text_tlste:
                 # Whole are in square meters
@@ -121,7 +134,13 @@ class AdvertSpider(scrapy.Spider):
             elif "Lokalita" in text_tlste:
                 # Location of estate
                 str_location = parameter.xpath('.//strong/text()').extract()
-                value = ''.join(str_location)
-                l.add_value('Location', value)
+                if len(str_location) > 1:
+                    street = str_location[0]
+                    l.add_value('Street', street)
+                    city = str_location[1][2:]
+                else:
+                    city = str_location
+                # value = ''.join(str_location)
+                l.add_value('City', city)
 
         return l.load_item()

@@ -32,12 +32,23 @@ class MongoDBPipeline(object):
             if not data:
                 valid = False
                 raise DropItem("Missing {0}!".format(data))
+
         if valid:
-            try:
-                self.collection.insert(dict(item))
-                print("Added to mongodb: " + str(item['Id']))
-            except:
-                print("Failed to write into mongodb")
-            # log.msg("Question added to MongoDB database!",
-            #         level=log.DEBUG, spider=spider)
+            item_id = str(item['Id'])
+            if self.collection.find_one({'Id': item_id}) == None:
+                try:
+                    self.collection.insert(dict(item))
+                    print("Added to mongodb: " + str(item['Id']))
+                except:
+                    print("Failed to write into mongodb")
+                # log.msg("Question added to MongoDB database!",
+                #         level=log.DEBUG, spider=spider)
+            else:
+                try:
+                    prices = self.collection.find_one({"Id": item_id}, {'_id': 0, 'Price': 1})['Price']
+                    item['Price'].append(list(prices))
+                    self.collection.update_one({'Id': item_id}, dict(item))
+                    print("Updated item in mongodb: " + str(item['Id']))
+                except:
+                    print("Failed to write into mongodb")
         return item
