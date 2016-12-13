@@ -34,7 +34,7 @@ class MongoDBPipeline(object):
                 raise DropItem("Missing {0}!".format(data))
 
         if valid:
-            item_id = str(item['Id'])
+            item_id = str(item['Id'][0])
             if self.collection.find_one({'Id': item_id}) == None:
                 try:
                     self.collection.insert(dict(item))
@@ -45,10 +45,22 @@ class MongoDBPipeline(object):
                 #         level=log.DEBUG, spider=spider)
             else:
                 try:
-                    prices = self.collection.find_one({"Id": item_id}, {'_id': 0, 'Price': 1})['Price']
-                    item['Price'].append(list(prices))
-                    self.collection.update_one({'Id': item_id}, dict(item))
-                    print("Updated item in mongodb: " + str(item['Id']))
-                except:
-                    print("Failed to write into mongodb")
+                    response = self.collection.find_one({"Id": item_id}, {'_id': 0, 'Price': 1, 'LastUpdate': 1})
+
+                    if item['LastUpdate'][0] == response['LastUpdate'][0]:
+                        return
+                    else:
+                        prices = response['Price']
+                        for price in prices:
+                            item['Price'].append(price)
+
+                        print("Prices: " + item['Price'][0])
+
+                        self.collection.update_one({'Id': item_id}, {'$set': {'Price': item['Price'],
+                                                                              'LastUpdate': item['LastUpdate']}}
+                                                   , upsert=False)
+
+                        print("Updated item in mongodb: " + str(item['Id']))
+                except Exception as inst:
+                    print("Failed to write into mongodb" + inst)
         return item
