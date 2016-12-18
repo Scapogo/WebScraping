@@ -20,11 +20,11 @@ class AdvertSpider(scrapy.Spider):
                                  callback=self.parse_advert)
 
         # follow pagination links
-        # next_page = response.css('div.withLeftBox a.next::attr(href)').extract_first()
-        # if next_page is not None:
-        #     print(next_page)
-        #     next_page = response.urljoin(next_page)
-        #     yield scrapy.Request(next_page, callback=self.parse)
+        next_page = response.css('div.withLeftBox a.next::attr(href)').extract_first()
+        if next_page is not None:
+            print(next_page)
+            next_page = response.urljoin(next_page)
+            yield scrapy.Request(next_page, callback=self.parse)
 
     def parse_advert(self, response):
         def extract_with_css(query):
@@ -92,7 +92,24 @@ class AdvertSpider(scrapy.Spider):
         l.add_value('Price', value)
 
         # Get number of rooms item from parameters, not yet processed, for future
-        l.add_xpath('NumberOfRooms', '//strong[@id="categoryNameJS"]/text()')   # categoryNameJS
+        #l.add_xpath('NumberOfRooms', '//strong[@id="categoryNameJS"]/text()')   # categoryNameJS
+        str_value = str(response.xpath('//strong[@id="categoryNameJS"]/text()').extract())
+        land = False
+        if 'Pozemok' in str_value:
+            l.add_value('NumberOfRooms', 0)  # If it is just land put 0 in number of rooms
+            land = True
+        elif ('Gars' in str_value) or ('1' in str_value):
+            l.add_value('NumberOfRooms', 1)
+        elif '2' in str_value:
+            l.add_value('NumberOfRooms', 2)
+        elif '3' in str_value:
+            l.add_value('NumberOfRooms', 3)
+        elif '4' in str_value:
+            l.add_value('NumberOfRooms', 4)
+        elif '5' in str_value:
+            l.add_value('NumberOfRooms', 5)
+        else:
+            l.add_value('NumberOfRooms', 0)
 
         # Get all parameters of estate
         parameters = response.xpath('//div[@id="params"]/p')
@@ -104,7 +121,10 @@ class AdvertSpider(scrapy.Spider):
                 # Area in square meters
                 str_area = str(parameter.xpath('.//strong/text()').extract())
                 value = get_m2(str_area)
-                l.add_value('LivingAreaM2', value)
+                if land:
+                    l.add_value('LandAreaM2', value)
+                else:
+                    l.add_value('LivingAreaM2', value)
             elif "Dátum aktualizácie" in text_tlste:
                 # Last update of advert, [2,-2] is there to remove brackets and comas
                 str_date = str(parameter.xpath('.//strong/text()').extract())[2:-2]
@@ -142,5 +162,21 @@ class AdvertSpider(scrapy.Spider):
                     city = str_location
                 # value = ''.join(str_location)
                 l.add_value('City', city)
+
+        landarea = l.get_collected_values('LandAreaM2')
+        livingarea = l.get_collected_values('LivingAreaM2')
+
+        if (len(landarea) == 0) and (len(livingarea) == 0):
+            description = str(response.xpath('//p[@class="popis"]').extract())
+            try:
+                value_m2 = re.findall(r'\d+ m2', description)[0]
+                value = int(re.findall(r'\d+', value_m2)[0])
+
+                if land:
+                    l.add_value('LandAreaM2', value)
+                else:
+                    l.add_value('LivingAreaM2', value)
+            except:
+                print("Problem with finding square meters in advert.")
 
         return l.load_item()

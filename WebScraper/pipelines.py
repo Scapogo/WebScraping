@@ -34,7 +34,8 @@ class MongoDBPipeline(object):
                 raise DropItem("Missing {0}!".format(data))
 
         if valid:
-            item_id = str(item['Id'][0])
+            item_id = str(item['Id'])
+            print("Item ID: " + str(item_id))
             if self.collection.find_one({'Id': item_id}) == None:
                 try:
                     self.collection.insert(dict(item))
