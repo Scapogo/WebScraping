@@ -9,3 +9,5 @@ sudo apt-get install python3 python-dev python3-dev \
      python-pip
      
 Also check dependencies for Cryptography at https://cryptography.io/en/latest/installation/#building-cryptography-on-linux 
+
+Use nodejs legacy for Mongodb manager sudo apt install nodejs-legacy
