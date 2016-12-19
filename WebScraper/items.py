@@ -20,3 +20,4 @@ class Advert(scrapy.Item):
     Street = scrapy.Field(output_processor=TakeFirst())  # Street where estate is located
     City = scrapy.Field(output_processor=TakeFirst())  # Location of estate which we can later use for evaluation
     LastUpdate = scrapy.Field(output_processor=TakeFirst())  # Last update of advert
+    YearBuilt = scrapy.Field(output_processor=TakeFirst())  # Year of construction

@@ -8,6 +8,8 @@ class AdvertSpider(scrapy.Spider):
     name = "adverts"
     start_urls = [
         'http://www.nehnutelnosti.sk/senica/predaj',
+        #'http://www.nehnutelnosti.sk/skalica/predaj',
+        #'http://www.nehnutelnosti.sk/holic/predaj',
     ]
 
     def parse(self, response):
@@ -20,11 +22,11 @@ class AdvertSpider(scrapy.Spider):
                                  callback=self.parse_advert)
 
         # follow pagination links
-        next_page = response.css('div.withLeftBox a.next::attr(href)').extract_first()
-        if next_page is not None:
-            print(next_page)
-            next_page = response.urljoin(next_page)
-            yield scrapy.Request(next_page, callback=self.parse)
+        # next_page = response.css('div.withLeftBox a.next::attr(href)').extract_first()
+        # if next_page is not None:
+        #     print(next_page)
+        #     next_page = response.urljoin(next_page)
+        #     yield scrapy.Request(next_page, callback=self.parse)
 
     def parse_advert(self, response):
         def extract_with_css(query):
@@ -47,7 +49,8 @@ class AdvertSpider(scrapy.Spider):
             result = re.findall(r'\d+\ *\d*', text)
 
             if len(result) > 0:
-                return result[0]
+                #str_price = ''.join(result[0].split())
+                return ''.join(result[0].split())  # result[0]
             else:
                 return 0
 
@@ -166,17 +169,33 @@ class AdvertSpider(scrapy.Spider):
         landarea = l.get_collected_values('LandAreaM2')
         livingarea = l.get_collected_values('LivingAreaM2')
 
-        if (len(landarea) == 0) and (len(livingarea) == 0):
-            description = str(response.xpath('//p[@class="popis"]').extract())
-            try:
-                value_m2 = re.findall(r'\d+ m2', description)[0]
-                value = int(re.findall(r'\d+', value_m2)[0])
+        description = str(response.xpath('//p[@class="popis"]').extract())
 
-                if land:
-                    l.add_value('LandAreaM2', value)
-                else:
-                    l.add_value('LivingAreaM2', value)
+        if (len(landarea) == 0) and (len(livingarea) == 0):
+
+            try:
+                value_m2 = re.findall(r'\d+ m2', description)  # [0]
+                if len(value_m2) == 0:
+                    value_m2 = re.findall(r'\d+m2', description)
+
+                if len(value_m2):
+                    value = int(re.findall(r'\d+', value_m2[0])[0])
+
+                    if land:
+                        l.add_value('LandAreaM2', value)
+                    else:
+                        l.add_value('LivingAreaM2', value)
             except:
                 print("Problem with finding square meters in advert.")
+
+        year_str = re.findall(r'r\. \d+', description)
+        if len(year_str) == 0:
+            year_str = re.findall(r'roku \d+', description)
+
+        if len(year_str) > 0:
+            year = re.findall('\d+', year_str[0])
+            l.add_value('YearBuilt', year[0])
+        else:
+            l.add_value('YearBuilt', 0)
 
         return l.load_item()
