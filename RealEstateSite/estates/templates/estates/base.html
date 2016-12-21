@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real Estates</title>
+</head>
+<body>
+    <p>
+        <a href="{%url 'estates:index' %}">Home</a> -
+        <a href="{%url 'estates:senica' %}">Senica</a>
+    </p>
+
+    {% block content %}
+        {% load humanize %}
+    {% endblock content %}
+</body>
+</html>

@@ -1,0 +1,14 @@
+{% extends "estates/base.html" %}
+{% load humanize %}
+
+{% block content %}
+    <p>
+        <a href="{% url 'estates:senica_room_filter' 3 %}">3 Izbove byty</a>
+    </p>
+    <p>
+        Web page for Senica.
+
+        Average price of estates is {{ average|floatformat:2|intcomma }} EUR.
+        There are currently around {{ count }} adverts active.
+    </p>
+{% endblock content %}
