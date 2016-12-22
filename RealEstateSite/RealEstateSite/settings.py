@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
 
+    # Third party apps
+    'bootstrap3',
+
     # My apps
     'estates',
 ]
@@ -102,6 +105,12 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Bootstrap3
+
+BOOTSTRAP3 = {
+    'include_jquery': True,
+}
 
 
 # Internationalization
