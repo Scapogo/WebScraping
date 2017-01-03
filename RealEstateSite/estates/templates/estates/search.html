@@ -1,4 +1,5 @@
 {% extends "estates/base.html" %}
+{% load humanize %}
 
 {% block content_left %}
     <form action="{% url 'estates:search' %}" method="post">
@@ -10,5 +11,12 @@
 {% block content %}
     <p>
         Manage real estates.
+    </p>
+    <p>
+        {{ selected }}
+    </p>
+    <p>
+        Average price of estates is {{ average|floatformat:2|intcomma }} EUR.
+        There are currently around {{ count }} adverts active.
     </p>
 {% endblock content %}

@@ -5,4 +5,5 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^senica/$', views.senica, name='senica'),
     url(r'^senica/(?P<room_number>\d+)/$', views.senica_room_filter, name='senica_room_filter'),
+    url(r'^search/$', views.search, name='search'),
 ]
