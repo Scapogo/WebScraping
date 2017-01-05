@@ -70,7 +70,7 @@ ITEM_PIPELINES = {
 
 MONGODB_SERVER = "localhost"
 MONGODB_PORT = 27017
-MONGODB_DB = "RealEstate"
+MONGODB_DB = "real_estate"
 MONGODB_COLLECTION = "Adverts"
 
 # Enable and configure the AutoThrottle extension (disabled by default)

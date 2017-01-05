@@ -2,3 +2,4 @@ __pycache__/
 .idea/
 Jupyter/.ipynb_checkpoints
 RealEstateSite/db.sqlite3
+config.py

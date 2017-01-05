@@ -3,8 +3,13 @@ import pymongo
 
 from .forms import AdvertFilterForm
 
-connection = pymongo.MongoClient('localhost', 27017)
-db = connection.RealEstate
+import sys
+sys.path.append("..")
+
+import config
+
+connection = pymongo.MongoClient(config.MLAB_URI)#'localhost', 27017)
+db = connection.real_estate
 adverts_db = db.Adverts
 CITY_LIST = (('0', 'Senica'), ('1', 'Skalica'))
 

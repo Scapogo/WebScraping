@@ -10,6 +10,11 @@ from scrapy.conf import settings
 from scrapy.exceptions import DropItem
 #  from scrapy import log
 
+import sys
+sys.path.append("..")
+
+import config
+
 
 class WebscraperPipeline(object):
     def process_item(self, item, spider):
@@ -20,8 +25,9 @@ class MongoDBPipeline(object):
 
     def __init__(self):
         connection = pymongo.MongoClient(
-            settings['MONGODB_SERVER'],
-            settings['MONGODB_PORT']
+            config.MLAB_URI
+            # settings['MONGODB_SERVER'],
+            # settings['MONGODB_PORT']
         )
         db = connection[settings['MONGODB_DB']]
         self.collection = db[settings['MONGODB_COLLECTION']]
