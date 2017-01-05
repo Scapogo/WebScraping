@@ -98,6 +98,7 @@ class AdvertSpider(scrapy.Spider):
         #l.add_xpath('NumberOfRooms', '//strong[@id="categoryNameJS"]/text()')   # categoryNameJS
         str_value = str(response.xpath('//strong[@id="categoryNameJS"]/text()').extract())
         land = False
+
         if 'Pozemok' in str_value:
             l.add_value('NumberOfRooms', 0)  # If it is just land put 0 in number of rooms
             land = True
@@ -113,6 +114,16 @@ class AdvertSpider(scrapy.Spider):
             l.add_value('NumberOfRooms', 5)
         else:
             l.add_value('NumberOfRooms', 0)
+
+        if ('dom' in str_value) and not ('Pozemok' in str_value):
+            l.add_value('House', 1)
+        else:
+            l.add_value('House', 0)
+
+        if land:
+            l.add_value('Land', 1)
+        else:
+            l.add_value('Land', 0)
 
         # Get all parameters of estate
         parameters = response.xpath('//div[@id="params"]/p')
