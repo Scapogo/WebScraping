@@ -1,20 +1,31 @@
 import pymongo
+import sys
+import datetime
 
-client = pymongo.MongoClient('localhost', 27017)
+sys.path.append("..")
 
-db = client.RealEstate
+import config
 
-collection = db.Adverts
+date_now = datetime.datetime.now()
+date = date_now.day + '/' + date_now.month + '/' + date_now.year
 
-print(collection.find().count())
+client = pymongo.MongoClient(config.MLAB_URI)
 
-for advert in collection.find():
-    pass
+db = client['real_estate']
 
-# For deleting duplicate records in mongodb
-# db.dups.aggregate([{$group:{_id:"$contact_id", dups:{$push:"$_id"}, count: {$sum: 1}}},
-# {$match:{count: {$gt: 1}}}
-# ]).forEach(function(doc){
-#   doc.dups.shift();
-#   db.dups.remove({_id : {$in: doc.dups}});
-# });
+adv_coll = db['Adverts']
+stats_coll = db['Stats_data']
+
+for city in config.CITY_LIST:
+    stats_coll.insert({'City': city[1], 'Date': date})
+
+    for category in config.TYPE_CHOICES:
+        # TODO go through all types and get statistics about those adverts into stats collection
+
+# 1. Create new document: {'City': city, 'Date': date}
+# 2. Insert stats for first category
+    # db.test.update({ 'City' : city, 'Date': date }, { '$set': {Stats: [{'category': 1, 'Avg': Average, 'Min': Min}, {}]}})
+# 3. Insert other categories
+    # db.test.update({ 'City' : city, 'Date': date }, { '$push': {Stats: [{'category': 2, 'Avg': Average, 'Min': Min}, {}]}})
+
+# http://stackoverflow.com/questions/26967525/insert-an-embedded-document-to-a-new-field-in-mongodb-document

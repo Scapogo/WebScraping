@@ -23,4 +23,3 @@ class Advert(scrapy.Item):
     YearBuilt = scrapy.Field(output_processor=TakeFirst())  # Year of construction
     House = scrapy.Field(output_processor=TakeFirst())  # Is this advert house or land/appartment
     Land = scrapy.Field(output_processor=TakeFirst())  # Is this advert land or house/appartment
-    # TODO Add field wchich indicates if adverts is for house
