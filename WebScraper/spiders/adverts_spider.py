@@ -8,7 +8,7 @@ class AdvertSpider(scrapy.Spider):
     name = "adverts"
     start_urls = [
         'http://www.nehnutelnosti.sk/senica/predaj',
-        #'http://www.nehnutelnosti.sk/skalica/predaj',
+        'http://www.nehnutelnosti.sk/skalica/predaj',
         #'http://www.nehnutelnosti.sk/holic/predaj',
     ]
 
@@ -22,11 +22,11 @@ class AdvertSpider(scrapy.Spider):
                                  callback=self.parse_advert)
 
         # follow pagination links
-        # next_page = response.css('div.withLeftBox a.next::attr(href)').extract_first()
-        # if next_page is not None:
-        #     print(next_page)
-        #     next_page = response.urljoin(next_page)
-        #     yield scrapy.Request(next_page, callback=self.parse)
+        next_page = response.css('div.withLeftBox a.next::attr(href)').extract_first()
+        if next_page is not None:
+            print(next_page)
+            next_page = response.urljoin(next_page)
+            yield scrapy.Request(next_page, callback=self.parse)
 
     def parse_advert(self, response):
         def extract_with_css(query):
