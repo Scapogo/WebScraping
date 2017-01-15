@@ -47,7 +47,7 @@ def getstats(pricelist):
 
 
 for city in config.CITY_LIST:
-    stats_coll.insert({'City': city[1], 'Date': date})
+    stats_coll.insert({'City': city[1], 'Date': date_now})
 
     for category in config.TYPE_CHOICES:
         print(category[0])  # Just for debuging purposes
@@ -58,7 +58,7 @@ for city in config.CITY_LIST:
 
             avg, min_price, max_price, med, count = getstats(pricelist)
 
-            stats_coll.update({'City': city[1], 'Date': date}, {'$set': {
+            stats_coll.update({'City': city[1], 'Date': date_now}, {'$set': {
                 'Stats': [{'category': category[0], 'Avg': avg, 'Min': min_price, 'Max': max_price, 'Med': med,
                            'Count': count}]}})
         elif int(category[0]) < 5:
@@ -68,9 +68,9 @@ for city in config.CITY_LIST:
 
             avg, min_price, max_price, med, count = getstats(pricelist)
 
-            stats_coll.update({'City': city[1], 'Date': date}, {'$push': {
-                'Stats': [{'category': category[0], 'Avg': avg, 'Min': min_price, 'Max': max_price, 'Med': med,
-                           'Count': count}]}})
+            stats_coll.update({'City': city[1], 'Date': date_now}, {'$push': {
+                'Stats': {'category': category[0], 'Avg': avg, 'Min': min_price, 'Max': max_price, 'Med': med,
+                           'Count': count}}})
         elif int(category[0]) == 5:
             adverts = adv_coll.find({'City': city[1], 'House': 1}, {'Price': 1})
 
@@ -78,9 +78,9 @@ for city in config.CITY_LIST:
 
             avg, min_price, max_price, med, count = getstats(pricelist)
 
-            stats_coll.update({'City': city[1], 'Date': date}, {'$push': {
-                'Stats': [{'category': category[0], 'Avg': avg, 'Min': min_price, 'Max': max_price, 'Med': med,
-                           'Count': count}]}})
+            stats_coll.update({'City': city[1], 'Date': date_now}, {'$push': {
+                'Stats': {'category': category[0], 'Avg': avg, 'Min': min_price, 'Max': max_price, 'Med': med,
+                           'Count': count}}})
         elif int(category[0]) == 6:
             adverts = adv_coll.find({'City': city[1], 'Land': 1}, {'Price': 1})
 
@@ -88,9 +88,9 @@ for city in config.CITY_LIST:
 
             avg, min_price, max_price, med, count = getstats(pricelist)
 
-            stats_coll.update({'City': city[1], 'Date': date}, {'$push': {
-                'Stats': [{'category': category[0], 'Avg': avg, 'Min': min_price, 'Max': max_price, 'Med': med,
-                           'Count': count}]}})
+            stats_coll.update({'City': city[1], 'Date': date_now}, {'$push': {
+                'Stats': {'category': category[0], 'Avg': avg, 'Min': min_price, 'Max': max_price, 'Med': med,
+                           'Count': count}}})
 
 # 1. Create new document: {'City': city, 'Date': date}
 # 2. Insert stats for first category
